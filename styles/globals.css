@@ -64,16 +64,16 @@ html, body {
 /* ── Banner ── */
 .banner-wrap {
   width: 100%;
-  height: 130px;
   overflow: hidden;
   position: relative;
+  line-height: 0;
 }
 .banner-wrap img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  height: auto;
   display: block;
+  object-fit: contain;
+  object-position: center;
 }
 .banner-overlay {
   position: absolute;
@@ -227,21 +227,32 @@ html, body {
 }
 .alert-danger { background: #fee2e2; color: #dc2626; }
 
-/* ── Footer stat bar ── */
-.stat-bar {
+/* ── Card footer ── */
+.card-footer {
   display: flex;
-  gap: 18px;
-  justify-content: center;
-  margin-top: 20px;
-  font-size: 0.8rem;
-  color: var(--gray-500);
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1.5px solid var(--gray-100);
+  font-size: 0.72rem;
+  color: var(--gray-400);
 }
-.stat-dot {
-  display: inline-block;
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  margin-right: 5px;
+.card-footer a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
 }
+.card-footer a:hover { text-decoration: underline; }
+
+/* ── Pulse dot ── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+.pulse { animation: pulse-dot 1.8s ease-in-out infinite; display: inline-block; }
 
 /* ── Spinner ── */
 .spinner {

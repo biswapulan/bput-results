@@ -25,7 +25,6 @@ export default function Home() {
     if (roll.length < 8) return setError('Please enter a valid roll number.')
     setError('')
     setLoading(true)
-    // Navigate to result page — actual fetch happens there
     await router.push(`/result/${encodeURIComponent(roll)}?session=${encodeURIComponent(session)}`)
     setLoading(false)
   }
@@ -39,11 +38,9 @@ export default function Home() {
       <div className="page-bg">
         <div className="card fade-up">
 
-          {/* Banner */}
+          {/* Banner — no overlay */}
           <div className="banner-wrap">
-            {/* Replace /banner.jpg with your actual banner image */}
             <img src="/bputnotes-banner.png" alt="BPUT" onError={e => { e.target.style.display='none' }} />
-            <div className="banner-overlay" />
           </div>
 
           <div className="card-body">
@@ -86,19 +83,13 @@ export default function Home() {
             <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
               {loading ? <><span className="spinner" />Fetching…</> : 'Get My Result →'}
             </button>
-          </div>
-        </div>
 
-        {/* Footer */}
-        <div className="stat-bar">
-          <span>
-            <span className="stat-dot" style={{ background: '#22c55e' }} />
-            Result Published
-          </span>
-          <span>
-            <span className="stat-dot" style={{ background: '#3b82f6' }} />
-            bputnotes.in
-          </span>
+            {/* Card footer */}
+            <div className="card-footer">
+              <span>Made by <a href="https://bputnotes.in" target="_blank" rel="noreferrer">bputnotes.in</a></span>
+              <span>Content owned by <a href="https://results.bput.ac.in/" target="_blank" rel="noreferrer">BPUT, Odisha</a></span>
+            </div>
+          </div>
         </div>
       </div>
     </>

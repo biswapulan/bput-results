@@ -40,18 +40,29 @@ export default async function handler(req, res) {
     const semId = latest.semId
     const latestSession = latest.examSession
 
-    // Step 2 — get subjects + SGPA
-    const subjectsRes = await fetch(
-      `${BASE}/student-results-subjects-list?semid=${semId}&rollNo=${encodeURIComponent(rollNo)}&session=${encodeURIComponent(latestSession)}`,
-      { method: 'POST', headers }
-    )
+    // Step 2 & 3 — fetch subjects and student details in parallel
+    const [subjectsRes, detailsRes] = await Promise.all([
+      fetch(
+        `${BASE}/student-results-subjects-list?semid=${semId}&rollNo=${encodeURIComponent(rollNo)}&session=${encodeURIComponent(latestSession)}`,
+        { method: 'POST', headers }
+      ),
+      fetch(
+        `${BASE}/student-detsils-results?rollNo=${encodeURIComponent(rollNo)}`,
+        { method: 'POST', headers }
+      ),
+    ])
 
     const subjectsData = await subjectsRes.json()
+    const detailsData  = await detailsRes.json()
 
     return res.status(200).json({
-      summary: latest,
-      grades:  subjectsData.grades       || [],
-      sgpa:    subjectsData.sgpadetails  || {},
+      summary: {
+        ...latest,
+        studentName: detailsData.studentName || '',
+        collegeName: detailsData.collegeName || '',
+      },
+      grades: subjectsData.grades      || [],
+      sgpa:   subjectsData.sgpadetails || {},
     })
   } catch (e) {
     console.error('BPUT API error:', e)

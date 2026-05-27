@@ -34,6 +34,17 @@ export default function Home() {
         <title>BPUT Result — bputnotes.in</title>
       </Head>
 
+      {/* ========== TICKER BAR START — update text below when result is released ========== */}
+      <div className="ticker-bar">
+        <div className="ticker-track">
+          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
+          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
+          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
+          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
+        </div>
+      </div>
+      {/* ========== TICKER BAR END ========== */}
+
       <div className="page-bg">
         <div className="card fade-up">
 

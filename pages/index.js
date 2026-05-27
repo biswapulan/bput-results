@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 
 const SESSIONS = [
-  'Even-(2025-26)',
+  // 'Even-(2025-26)',
   'Odd-(2025-26)',
   'Even-(2024-25)',
   'Odd-(2024-25)',

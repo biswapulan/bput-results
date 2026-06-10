@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 
 const SESSIONS = [
-  // 'Even-(2025-26)',
+  'Even-(2025-26)',
   'Odd-(2025-26)',
   'Even-(2024-25)',
   'Odd-(2024-25)',
@@ -37,10 +37,10 @@ export default function Home() {
       {/* ========== TICKER BAR START — update text below when result is released ========== */}
       <div className="ticker-bar">
         <div className="ticker-track">
-          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
-          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
-          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
-          <span className="ticker-item">✦ Even Semester 2025-26 results are coming soon — stay tuned!</span>
+          <span className="ticker-item">✦ Even Semester 2025-26 results are OUT !!! Check Now</span>
+          <span className="ticker-item">✦ Even Semester 2025-26 results are OUT !!! Check Now</span>
+          <span className="ticker-item">✦ Even Semester 2025-26 results are OUT !!! Check Now</span>
+          <span className="ticker-item">✦ Even Semester 2025-26 results are OUT !!! Check Now</span>
         </div>
       </div>
       {/* ========== TICKER BAR END ========== */}

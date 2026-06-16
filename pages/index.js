@@ -97,10 +97,10 @@ export default function Home() {
               <img src="/bputnotes-banner.png" alt="BPUTNotes" onError={e => { e.target.style.display = 'none' }} />
             </div>
             <div className="card-body">
-              <button className="back-btn" onClick={() => { setMode(null); setError('') }}>
+              <button className="back-btn" onClick={() => { setMode(null); setError('') }} style={{ display: 'block', marginBottom: 12 }}>
                 ← Back
               </button>
-              <div className="tag" style={{ marginTop: 10 }}>Solo Lookup</div>
+              <div className="tag">Solo Lookup</div>
               <h1 className="headline">
                 Check Your<br />
                 <em>BPUT Result</em>

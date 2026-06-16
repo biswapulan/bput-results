@@ -69,9 +69,11 @@ export default function Home() {
                       <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
                     </svg>
                   </div>
-                  <div className="mode-label">Just Me</div>
-                  <div className="mode-desc">Check your own result in seconds. Enter roll number, get SGPA.</div>
-                  <div className="mode-badge">Solo Lookup →</div>
+                  <div className="mode-content">
+                    <div className="mode-label">Just Me</div>
+                    <div className="mode-desc">Check your own result in seconds. Enter roll number, get SGPA.</div>
+                    <div className="mode-badge">Solo Lookup →</div>
+                  </div>
                 </button>
 
                 <button className="mode-card" onClick={() => setMode('bulk')}>
@@ -81,9 +83,11 @@ export default function Home() {
                       <path d="M1 20c0-3.3 3.1-6 7-6h2"/><path d="M14 20c0-2.8 2.3-5 5-5s5 2.2 5 5"/>
                     </svg>
                   </div>
-                  <div className="mode-label">The Whole Squad</div>
-                  <div className="mode-desc">Fetch results for your entire class at once. Compare SGPAs side by side.</div>
-                  <div className="mode-badge bulk-badge">Class Sweep →</div>
+                  <div className="mode-content">
+                    <div className="mode-label">The Whole Squad</div>
+                    <div className="mode-desc">Fetch results for your entire class at once. Compare SGPAs side by side.</div>
+                    <div className="mode-badge bulk-badge">Class Sweep →</div>
+                  </div>
                 </button>
               </div>
             </div>

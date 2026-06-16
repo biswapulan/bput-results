@@ -100,7 +100,7 @@ export default function Home() {
               <button className="back-btn" onClick={() => { setMode(null); setError('') }}>
                 ← Back
               </button>
-              <div className="tag">Solo Lookup</div>
+              <div className="tag" style={{ marginTop: 10 }}>Solo Lookup</div>
               <h1 className="headline">
                 Check Your<br />
                 <em>BPUT Result</em>

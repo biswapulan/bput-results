@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const MAX_RANGE = 100
 
@@ -62,22 +62,35 @@ function InstructionsModal({ onClose }) {
   )
 }
 
-function downloadPDF(sorted, session) {
+function downloadPDF(found, session) {
   // Pull dept + sem from first found result
-  const first = sorted[0]
+  const first = found[0]
   const branchRaw = first?.summary?.branchName || ''
   const branch = branchRaw.replace('B.Tech.(', '').replace(')', '').trim() || branchRaw
   const sem = first?.summary?.semId ? `Semester ${first.summary.semId}` : ''
   const college = first?.summary?.collegeName || ''
 
-  // Build minimal HTML for the PDF window
-  const rows = sorted.map((r, i) => `
+  // Sort by rank (SGPA desc) to assign ranks, then sort by reg number for display
+  const rankedByScore = [...found].sort((a, b) => parseFloat(b.sgpa) - parseFloat(a.sgpa))
+  const rankMap = {}
+  rankedByScore.forEach((r, i) => { rankMap[r.rollNo] = i + 1 })
+
+  // Display order: by registration number
+  const byRegNo = [...found].sort((a, b) => a.rollNo.localeCompare(b.rollNo))
+
+  const rows = byRegNo.map((r, i) => `
     <tr>
       <td>${i + 1}</td>
       <td>${r.rollNo}</td>
       <td>${r.name || '—'}</td>
       <td><strong>${r.sgpa}</strong></td>
+      <td>${rankMap[r.rollNo]}</td>
     </tr>`).join('')
+
+  const logoSvg = `<svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="64" height="64" rx="16" fill="#2563eb"/>
+    <path d="M18 46V18h15c3.5 0 6.2.9 8 2.7 1.8 1.7 2.7 3.8 2.7 6.3 0 1.7-.5 3.2-1.5 4.4-.9 1.1-2 1.8-3.2 2.2 1.7.3 3 1.2 4 2.5 1 1.3 1.5 2.9 1.5 4.8 0 2.9-1 5.1-3 6.7-2 1.6-4.8 2.4-8.5 2.4H18zm6.2-17h8.3c1.9 0 3.3-.5 4.2-1.3.9-.8 1.4-1.9 1.4-3.2 0-1.4-.5-2.5-1.4-3.2-.9-.8-2.3-1.2-4.1-1.2h-8.4v8.9zm0 12h9.2c2 0 3.5-.5 4.5-1.5 1-.9 1.5-2.2 1.5-3.7s-.5-2.8-1.5-3.7c-1-1-2.5-1.4-4.5-1.4h-9.2v10.3z" fill="white"/>
+  </svg>`
 
   const html = `<!DOCTYPE html>
 <html>
@@ -91,13 +104,7 @@ function downloadPDF(sorted, session) {
 
   /* Brand header */
   .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #000; }
-  .brand-logo {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(135deg, #1e3a8a, #2563eb);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 800; font-size: 14px; letter-spacing: -1px;
-    flex-shrink: 0;
-  }
+  .brand-logo { width: 40px; height: 40px; flex-shrink: 0; }
   .brand-name { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
   .brand-name span { color: #2563eb; }
   .brand-sub { font-size: 11px; color: #555; margin-top: 1px; }
@@ -114,7 +121,8 @@ function downloadPDF(sorted, session) {
   th { background: #000; color: #fff; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
   tr:nth-child(even) td { background: #f5f5f5; }
   td:first-child, th:first-child { width: 36px; text-align: center; }
-  td:last-child, th:last-child { width: 70px; text-align: center; }
+  td:last-child, th:last-child { width: 52px; text-align: center; }
+  td:nth-child(4), th:nth-child(4) { width: 70px; text-align: center; }
   td strong { font-weight: 700; }
 
   /* Footer */
@@ -129,7 +137,7 @@ function downloadPDF(sorted, session) {
 <body>
 
 <div class="brand">
-  <div class="brand-logo">BP</div>
+  <div class="brand-logo">${logoSvg}</div>
   <div>
     <div class="brand-name">BPUT<span>Notes</span>.in</div>
     <div class="brand-sub">Result Portal — bputnotes.in</div>
@@ -142,7 +150,7 @@ function downloadPDF(sorted, session) {
   ${sem    ? `<div class="meta-row"><strong>Semester:</strong> ${sem}</div>` : ''}
   ${college ? `<div class="meta-row"><strong>College:</strong> ${college}</div>` : ''}
   <div class="meta-row"><strong>Session:</strong> ${session}</div>
-  <div class="meta-row"><strong>Total Students:</strong> ${sorted.length}</div>
+  <div class="meta-row"><strong>Total Students:</strong> ${byRegNo.length}</div>
 </div>
 
 <table>
@@ -152,6 +160,7 @@ function downloadPDF(sorted, session) {
       <th>Reg No</th>
       <th>Name</th>
       <th>SGPA</th>
+      <th>Rank</th>
     </tr>
   </thead>
   <tbody>${rows}</tbody>
@@ -191,7 +200,17 @@ export default function BulkChecker({ sessions, onBack }) {
   const [progress, setProgress]   = useState(0)
   const [total, setTotal]         = useState(0)
   const [error, setError]         = useState('')
+  const [helpOpen, setHelpOpen]   = useState(false)
   const abortRef                  = useRef(false)
+  const helpRef                   = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (helpRef.current && !helpRef.current.contains(e.target)) setHelpOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const validate = () => {
     const p = prefix.trim()
@@ -267,7 +286,59 @@ export default function BulkChecker({ sessions, onBack }) {
           <div className="card-body">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
               <button className="back-btn" onClick={onBack}>← Back</button>
-              <button className="modal-reopen-btn" onClick={() => setShowModal(true)}>❓ How to use</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="rp-help-wrap" ref={helpRef}>
+                  <button className="rp-help-btn" onClick={() => setHelpOpen(v => !v)}>
+                    Need Help
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                      <path
+                        d={helpOpen ? 'M2 8L6 4L10 8' : 'M2 4L6 8L10 4'}
+                        stroke="currentColor" strokeWidth="1.8"
+                        strokeLinecap="round" strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  {helpOpen && (
+                    <div className="rp-help-dropdown">
+                      <span className="rp-help-label">How can we help?</span>
+                      <a
+                        href="mailto:students@bput.ac.in?subject=Issue with BPUT Result"
+                        className="rp-help-item"
+                        onClick={() => setHelpOpen(false)}
+                      >
+                        <div className="rp-help-ico mail">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                          </svg>
+                        </div>
+                        <div className="rp-help-text">
+                          <strong>Issue with Result</strong>
+                          <span>Email BPUT — students@bput.ac.in</span>
+                        </div>
+                      </a>
+                      <a
+                        href="https://wa.me/918249185682?text=Hi%2C+I+have+an+issue+with+the+bputnotes.in+result+portal."
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rp-help-item"
+                        onClick={() => setHelpOpen(false)}
+                      >
+                        <div className="rp-help-ico wa">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                          </svg>
+                        </div>
+                        <div className="rp-help-text">
+                          <strong>Issue with Website</strong>
+                          <span>WhatsApp our admin</span>
+                        </div>
+                      </a>
+                    </div>
+                  )}
+                </div>
+                <button className="modal-reopen-btn" onClick={() => setShowModal(true)}>❓ How to use</button>
+              </div>
             </div>
 
             <div className="tag bulk-tag">Class Sweep</div>
@@ -354,7 +425,7 @@ export default function BulkChecker({ sessions, onBack }) {
 
               {/* Download PDF button — only when fetch is done */}
               {!loading && sorted.length > 0 && (
-                <button className="bulk-pdf-btn" onClick={() => downloadPDF(sorted, session)}>
+                <button className="bulk-pdf-btn" onClick={() => downloadPDF(found, session)}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                   </svg>

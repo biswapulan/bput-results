@@ -68,7 +68,7 @@ over WhatsApp.
 
 ### One-time setup
 
-1. In the Vercel dashboard → your project → **Storage** tab → **Browse Marketplace** → choose **Redis** (by Upstash) → create a database and connect it to this project. This auto-adds `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` env vars to your project. (Vercel's own "KV" product is deprecated — Upstash Redis is the replacement and works the same way.)
+1. In the Vercel dashboard → your project → **Storage** tab → **Browse Storage** (or "Create Database") → **Upstash** → **Upstash for Redis** → create a database and connect it to this project. This auto-adds Redis credentials as env vars — Vercel may name them `KV_REST_API_URL`/`KV_REST_API_TOKEN` or `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` depending on the integration version; the code checks both, so either is fine. (Vercel's own "KV" product is deprecated — this Upstash integration is the replacement.)
 2. Add two more env vars under **Settings → Environment Variables**:
    - `SESSION_SECRET` — generate with `openssl rand -base64 32`
    - `ADMIN_SECRET` — generate the same way; keep this private, it's your admin password for creating accounts

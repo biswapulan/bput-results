@@ -74,11 +74,31 @@ over WhatsApp.
    - `ADMIN_SECRET` — generate the same way; keep this private, it's your admin password for creating accounts
 3. Redeploy.
 
-### Adding a new CR / faculty account
+### Managing accounts — the Admin Panel
 
-After someone messages you on WhatsApp and you've confirmed they're a CR or
-faculty member, create their login by calling the admin endpoint once
-(from your terminal, Postman, etc.):
+For day-to-day use (e.g. handing this off to an intern for a semester), go to:
+
+```
+https://results.bputnotes.in/admin
+```
+
+This page isn't linked anywhere in the public site — only people who know the
+URL and the admin secret can reach it. On first visit it asks for the
+**admin secret** (the `ADMIN_SECRET` env var); after entering it correctly,
+it stays logged in for 8 hours. From there you can:
+
+- **Add an account** — enter a username, password, and role (CR or Faculty), click Create.
+- **See all existing accounts** — username, role, and when they were added.
+- **Remove an account** — instantly revokes that person's bulk-checker access.
+
+This is the intended way for someone else (e.g. an intern) to manage access
+over time without needing a terminal or your admin secret shared repeatedly —
+just give them the `/admin` URL and the secret once.
+
+### Adding a new CR / faculty account via curl (fallback / scripting)
+
+If you ever prefer the command line instead of the panel, you can still call
+the endpoint directly:
 
 ```bash
 curl -X POST https://result.bputnotes.in/api/admin/create-user \

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import BulkChecker from '../components/BulkChecker'
 
 const SESSIONS = [
   'Even-(2025-26)',
@@ -14,7 +13,7 @@ const SESSIONS = [
 
 export default function Home() {
   const router = useRouter()
-  const [mode, setMode] = useState(null) // null | 'solo' | 'bulk'
+  const [mode, setMode] = useState(null) // null | 'solo'
   const [rollNo, setRollNo]   = useState('')
   const [session, setSession] = useState(SESSIONS[0])
   const [error, setError]     = useState('')
@@ -76,7 +75,7 @@ export default function Home() {
                   </div>
                 </button>
 
-                <button className="mode-card" onClick={() => setMode('bulk')}>
+                <button className="mode-card" onClick={() => router.push('/bulk')}>
                   <div className="mode-icon bulk-icon">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2.5"/>
@@ -87,6 +86,7 @@ export default function Home() {
                     <div className="mode-label">The Whole Squad</div>
                     <div className="mode-desc">Fetch results for your entire class at once. Compare SGPAs side by side.</div>
                     <div className="mode-badge bulk-badge">Class Sweep →</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--gray-400, #9ca3af)', marginTop: 6 }}>🔒 CR / faculty login required</div>
                   </div>
                 </button>
               </div>
@@ -142,11 +142,6 @@ export default function Home() {
               </button>
             </div>
           </div>
-        )}
-
-        {/* ── BULK MODE ── */}
-        {mode === 'bulk' && (
-          <BulkChecker sessions={SESSIONS} onBack={() => setMode(null)} />
         )}
 
         {/* Floating CTA */}

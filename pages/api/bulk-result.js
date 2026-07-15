@@ -1,9 +1,19 @@
+import { readCookie, verifySessionToken, SESSION_COOKIE } from '../../lib/session'
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+
+  // Defense in depth — middleware already blocks this route, but we check
+  // again here in case the route is ever hit in a context middleware misses.
+  const token = readCookie(req.headers.cookie, SESSION_COOKIE)
+  const authedSession = await verifySessionToken(token)
+  if (!authedSession) {
+    return res.status(401).json({ error: 'Login required.' })
+  }
 
   const { rollNumbers, session } = req.body
   if (!rollNumbers || !session) return res.status(400).json({ error: 'Missing fields' })

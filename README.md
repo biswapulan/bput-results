@@ -59,6 +59,46 @@ public/
   banner.jpg            ← Your banner image (replace this)
 ```
 
+## Bulk Result Access (CR / Faculty only)
+
+The solo result checker stays fully public. The bulk "Class Sweep" tool at
+`/bulk` now requires login — there is **no public signup**. Accounts are
+created only by the admin after verifying someone as a CR or faculty member
+over WhatsApp.
+
+### One-time setup
+
+1. In the Vercel dashboard → your project → **Storage** tab → **Browse Marketplace** → choose **Redis** (by Upstash) → create a database and connect it to this project. This auto-adds `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` env vars to your project. (Vercel's own "KV" product is deprecated — Upstash Redis is the replacement and works the same way.)
+2. Add two more env vars under **Settings → Environment Variables**:
+   - `SESSION_SECRET` — generate with `openssl rand -base64 32`
+   - `ADMIN_SECRET` — generate the same way; keep this private, it's your admin password for creating accounts
+3. Redeploy.
+
+### Adding a new CR / faculty account
+
+After someone messages you on WhatsApp and you've confirmed they're a CR or
+faculty member, create their login by calling the admin endpoint once
+(from your terminal, Postman, etc.):
+
+```bash
+curl -X POST https://result.bputnotes.in/api/admin/create-user \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adminSecret": "YOUR_ADMIN_SECRET",
+    "username": "cr_cse_a_2022",
+    "password": "give-them-a-strong-password",
+    "role": "CR"
+  }'
+```
+
+`role` must be `"CR"` or `"faculty"`. Share the username/password with them
+directly (e.g. reply on the same WhatsApp thread). They log in at `/login`.
+
+Sessions last 12 hours. There is no in-app way to change a password yet —
+to reset one, just create the user again with a new password (it overwrites
+via the same call only if you first delete the old one, or extend
+`lib/auth.js` with an `updateUser` helper if you want a smoother reset flow).
+
 ## Features
 
 - Roll number + session input
